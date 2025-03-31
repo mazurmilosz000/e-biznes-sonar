@@ -1,16 +1,21 @@
-FROM golang:1.24.1 AS build
+FROM golang:1.24.1 AS builder
 
 WORKDIR /app
 
-COPY . .  
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+COPY . .
 
 RUN go build -o server .
 
-FROM golang:1.24.1
-
-COPY --from=build /app /app  
+FROM golang:1.24.1 AS runner
 
 WORKDIR /app
+
+COPY --from=builder /app/server /app/server  
 
 EXPOSE 8080
 
