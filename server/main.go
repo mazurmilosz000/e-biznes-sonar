@@ -8,6 +8,17 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+const idRequest = "/:id"
+
+const productRequest = "/products"
+const productIdRequest = productRequest + idRequest
+
+const categoryRequest = "/categories"
+const categoryIdRequest = categoryRequest + idRequest
+
+const cartRequest = "/cart"
+const cartIdRequest = cartRequest + idRequest
+
 func main() {
 	e := echo.New()
 
@@ -18,23 +29,23 @@ func main() {
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 	}))
 
-	e.GET("/products", controllers.GetAllProducts)
-	e.GET("/products/:id", controllers.GetProductById)
-	e.POST("/products", controllers.CreateProduct)
-	e.PUT("/products/:id", controllers.UpdateProductById)
-	e.DELETE("/products/:id", controllers.DeleteProduct)
+	e.GET(productRequest, controllers.GetAllProducts)
+	e.GET(productIdRequest, controllers.GetProductById)
+	e.POST(productRequest, controllers.CreateProduct)
+	e.PUT(productIdRequest, controllers.UpdateProductById)
+	e.DELETE(productIdRequest, controllers.DeleteProduct)
 
-	e.GET("/categories", controllers.GetAllCategories)
-	e.GET("/categories/:id", controllers.GetCategoryById)
-	e.POST("/categories", controllers.CreateCategory)
-	e.PUT("/categories/:id", controllers.UpdateCategoryById)
-	e.DELETE("/categories/:id", controllers.DeleteCategory)
+	e.GET(categoryRequest, controllers.GetAllCategories)
+	e.GET(categoryIdRequest, controllers.GetCategoryById)
+	e.POST(categoryRequest, controllers.CreateCategory)
+	e.PUT(categoryIdRequest, controllers.UpdateCategoryById)
+	e.DELETE(categoryIdRequest, controllers.DeleteCategory)
 
-	e.GET("/cart", controllers.GetAllCategories)
-	e.GET("/cart/:id", controllers.GetCategoryById)
-	e.POST("/cart", controllers.CreateCategory)
-	e.PUT("/cart/:id", controllers.UpdateCategoryById)
-	e.DELETE("/cart/:id", controllers.DeleteCategory)
+	e.GET(cartRequest, controllers.GetAllCategories)
+	e.GET(cartIdRequest, controllers.GetCategoryById)
+	e.POST(cartRequest, controllers.CreateCategory)
+	e.PUT(cartIdRequest, controllers.UpdateCategoryById)
+	e.DELETE(cartIdRequest, controllers.DeleteCategory)
 
 	e.POST("/checkout", controllers.Checkout)
 

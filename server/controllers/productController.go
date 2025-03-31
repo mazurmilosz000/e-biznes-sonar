@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"api-project/commons"
+
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -19,15 +21,15 @@ func GetAllProducts(c echo.Context) error {
 func GetProductById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": commons.InvalidIdError})
 	}
 
 	var product models.Product
 	if err := database.DB.Preload("Category").First(&product, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "Product not found"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": commons.ProductNotFoundError})
 		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": commons.DatabaseError})
 	}
 
 	return c.JSON(http.StatusOK, product)
@@ -46,15 +48,15 @@ func CreateProduct(c echo.Context) error {
 func DeleteProduct(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": commons.InvalidIdError})
 	}
 
 	var product models.Product
 	if err := database.DB.First(&product, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "Product not found"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": commons.ProductNotFoundError})
 		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": commons.DatabaseError})
 	}
 	database.DB.Delete(&product)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Product deleted successfully"})
@@ -63,20 +65,20 @@ func DeleteProduct(c echo.Context) error {
 func UpdateProductById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": commons.InvalidIdError})
 	}
 
 	var product models.Product
 	if err := database.DB.First(&product, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "Product not found"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": commons.ProductNotFoundError})
 		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": commons.DatabaseError})
 	}
 
 	updatedProduct := new(models.Product)
 	if err := c.Bind(updatedProduct); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": commons.InvalidRequestError})
 	}
 	database.DB.Model(&product).Updates(updatedProduct)
 	return c.JSON(http.StatusOK, product)
