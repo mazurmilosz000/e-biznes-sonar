@@ -50,13 +50,11 @@ func DeleteCart(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": commons.InvalidIdError})
 	}
 
-	var cart models.Cart
-	if err := database.DB.First(&cart, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": commons.CartNotFoundError})
-		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": commons.DatabaseError})
+	cart, status, errResponse := findCartByID(id)
+	if cart == nil {
+		return c.JSON(status, errResponse)
 	}
+
 	database.DB.Delete(&cart)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cart deleted successfully"})
 }
@@ -67,12 +65,9 @@ func UpdateCartById(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": commons.InvalidIdError})
 	}
 
-	var cart models.Cart
-	if err := database.DB.First(&cart, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": commons.CartNotFoundError})
-		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": commons.DatabaseError})
+	cart, status, errResponse := findCartByID(id)
+	if cart == nil {
+		return c.JSON(status, errResponse)
 	}
 
 	updatedCart := new(models.Cart)
@@ -81,4 +76,15 @@ func UpdateCartById(c echo.Context) error {
 	}
 	database.DB.Model(&cart).Updates(updatedCart)
 	return c.JSON(http.StatusOK, cart)
+}
+
+func findCartByID(id int) (*models.Cart, int, map[string]string) {
+	var cart models.Cart
+	if err := database.DB.First(&cart, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, http.StatusNotFound, map[string]string{"error": commons.CartNotFoundError}
+		}
+		return nil, http.StatusInternalServerError, map[string]string{"error": commons.DatabaseError}
+	}
+	return &cart, http.StatusOK, nil
 }
